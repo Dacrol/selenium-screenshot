@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  standalone-chrome:
+    image: selenium/standalone-chrome
+    ports:
+      - '4444:4444'
+    volumes:
+      - '/dev/shm:/dev/shm'
+    shm_size: 2g
+
+  screenshot:
+    image: node:10.16-buster-slim
+    ports:
+      - 8090:8090
+    working_dir: /home/node/app
+    volumes:
+      - ".:/home/node/app"
+    command: sh -c "npm install && npm start"
