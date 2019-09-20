@@ -2,20 +2,31 @@ const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const fs = require("fs");
 const express = require("express");
+// @ts-ignore
+const allowedIPs = require('./allowedIPs.json')
 const port = 8090;
 
 const { until, By } = webdriver;
 
+
 const app = express();
 app.use(express.json());
 
-const driver = new webdriver.Builder()
-  .forBrowser("chrome")
-  .usingServer("http://standalone-chrome:4444/wd/hub")
-  .build();
+let driver
+
+setTimeout(() => {
+  driver = buildDriver();
+}, 10000);
 
 app.post('/generate', async (req, res) => {
+  const requestor = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  console.log(requestor);
   console.log(req.body);
+  if(!allowedIPs.some((ip) => {
+    return ip === requestor;
+  })) {
+    res.status(450).send('You\'re not supposed to be here.')
+  }
   const data = await takeScreenshot(req.body.url, req.body);
   const img = new Buffer(data, 'base64');
   res.writeHead(200, {
@@ -49,4 +60,11 @@ function sleep(time) {
       resolve();
     }, +time);
   })
+}
+
+function buildDriver() {
+  return new webdriver.Builder()
+  .forBrowser("chrome")
+  .usingServer("http://standalone-chrome:4444/wd/hub")
+  .build();
 }

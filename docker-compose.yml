@@ -8,6 +8,9 @@ services:
     volumes:
       - '/dev/shm:/dev/shm'
     shm_size: 2g
+    environment: 
+      - SE_OPTS=-sessionTimeout 31536000
+
 
   screenshot:
     image: node:10.16-buster-slim
