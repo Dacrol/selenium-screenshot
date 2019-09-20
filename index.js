@@ -26,6 +26,7 @@ app.post('/generate', async (req, res) => {
     return ip === requestor;
   })) {
     res.status(450).send('You\'re not supposed to be here.')
+    return
   }
   const data = await takeScreenshot(req.body.url, req.body);
   const img = new Buffer(data, 'base64');
@@ -42,7 +43,7 @@ app.listen(port, () => {
 
 async function takeScreenshot(url, {width = undefined, height = undefined, delay = 0} = {}) {
   if (width > 0 && height > 0) {
-    await driver.manage().window().setRect({width: +width, height: +height})
+    await driver.manage().window().setRect({x: +width, y: +height + 126, height: +height + 126, width: +width})
   }
   await driver.get(url);
   await sleep(delay);
