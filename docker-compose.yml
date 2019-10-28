@@ -10,6 +10,7 @@ services:
     shm_size: 2g
     environment: 
       - SE_OPTS=-sessionTimeout 31536000
+    restart: unless-stopped
 
 
   screenshot:
@@ -20,3 +21,4 @@ services:
     volumes:
       - ".:/home/node/app"
     command: sh -c "npm install && npm start"
+    restart: unless-stopped
