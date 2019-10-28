@@ -20,7 +20,7 @@ setTimeout(() => {
   driver
     .manage()
     .setTimeouts({ implicit: timeout, pageLoad: timeout, script: timeout });
-}, 7500);
+}, 5000);
 
 app.post('/generate', async (req, res) => {
   const requestor =
