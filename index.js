@@ -116,7 +116,8 @@ async function blindtask({ url = '', delay = 0 } = {}) {
       if (
         entry.message &&
         entry.message.message &&
-        entry.message.message.params
+        entry.message.message.params &&
+        entry.message.message.params.request
       ) {
         const url = entry.message.message.params.request.url;
         // console.log(entry.message)
