@@ -5,7 +5,7 @@ const express = require('express');
 // @ts-ignore
 const allowedIPs = require('./allowedIPs.json');
 const port = 8090;
-const timeout = 30000;
+const timeout = 300000;
 
 const { until, By, logging } = webdriver;
 
@@ -17,9 +17,6 @@ let driver;
 setTimeout(() => {
   driver = buildDriver();
   console.info('Driver ready');
-  driver
-    .manage()
-    .setTimeouts({ implicit: timeout, pageLoad: timeout, script: timeout });
 }, 5000);
 
 app.post('/generate', async (req, res) => {
@@ -52,6 +49,7 @@ async function takeScreenshot(
   url,
   { width = undefined, height = undefined, delay = 0 } = {}
 ) {
+  const driver = await buildDriver();
   if (width > 0 && height > 0) {
     await driver
       .manage()
@@ -67,6 +65,7 @@ async function takeScreenshot(
   await sleep(delay);
   const body = await driver.findElement(By.tagName('body'));
   const data = await body.takeScreenshot();
+  driver.close();
   return data;
 
   //const base64Data = data.replace(/^data:image\/png;base64,/, "");
@@ -91,6 +90,7 @@ app.post('/blindtask', async (req, res) => {
 });
 
 async function blindtask({ url = '', delay = 0 } = {}) {
+  const driver = await buildDriver()
   await driver.get(url);
   await sleep(delay);
   let logs = await driver
@@ -132,6 +132,7 @@ async function blindtask({ url = '', delay = 0 } = {}) {
         return false;
       }
     });
+    driver.close();
   return response;
 }
 
@@ -151,9 +152,13 @@ function buildDriver() {
     webdriver.logging.Level.ALL
   );
   options.setLoggingPrefs(logging_prefs);
-  return new webdriver.Builder()
+  const driver = new webdriver.Builder()
     .forBrowser('chrome')
     .usingServer('http://standalone-chrome:4444/wd/hub')
     .withCapabilities(options)
     .build();
+  driver
+    .manage()
+    .setTimeouts({ implicit: timeout, pageLoad: timeout, script: timeout });
+  return driver;
 }
