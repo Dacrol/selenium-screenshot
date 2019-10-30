@@ -144,7 +144,7 @@ function sleep(time) {
   });
 }
 
-function buildDriver() {
+async function buildDriver() {
   const options = new chrome.Options();
   const logging_prefs = new webdriver.logging.Preferences();
   logging_prefs.setLevel(
@@ -152,7 +152,7 @@ function buildDriver() {
     webdriver.logging.Level.ALL
   );
   options.setLoggingPrefs(logging_prefs);
-  const driver = new webdriver.Builder()
+  const driver = await new webdriver.Builder()
     .forBrowser('chrome')
     .usingServer('http://standalone-chrome:4444/wd/hub')
     .withCapabilities(options)
