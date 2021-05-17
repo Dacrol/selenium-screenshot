@@ -80,9 +80,10 @@ app.post('/blindtask', async (req, res) => {
   console.log(req.body);
   if (
     !allowedIPs.some(ip => {
-      return ip === requestor;
+      return requestor.endsWith(ip);
     })
   ) {
+    console.log("Denied by IP filter (" + requestor + ")");
     res.status(450).send("You're not supposed to be here.");
     return;
   }
