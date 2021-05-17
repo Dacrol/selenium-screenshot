@@ -5,7 +5,7 @@ const express = require('express');
 // @ts-ignore
 const allowedIPs = require('./allowedIPs.json');
 const port = 8090;
-const timeout = 300000;
+const timeout = 600000;
 
 const { until, By, logging } = webdriver;
 
@@ -26,9 +26,10 @@ app.post('/generate', async (req, res) => {
   console.log(req.body);
   if (
     !allowedIPs.some(ip => {
-      return ip === requestor;
+      return requestor.endsWith(ip);
     })
   ) {
+    console.log("Denied by IP filter (" + requestor + ")");
     res.status(450).send("You're not supposed to be here.");
     return;
   }
@@ -144,7 +145,7 @@ function sleep(time) {
   });
 }
 
-async function buildDriver() {
+function buildDriver() {
   const options = new chrome.Options();
   const logging_prefs = new webdriver.logging.Preferences();
   logging_prefs.setLevel(
@@ -152,7 +153,7 @@ async function buildDriver() {
     webdriver.logging.Level.ALL
   );
   options.setLoggingPrefs(logging_prefs);
-  const driver = await new webdriver.Builder()
+  const driver = new webdriver.Builder()
     .forBrowser('chrome')
     .usingServer('http://standalone-chrome:4444/wd/hub')
     .withCapabilities(options)
